@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f766e">
+  <meta name="description" content="A playful English weather and travel adventure for young explorers.">
+  <title>World Weather Explorers</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <button class="brand" id="homeBtn" type="button" aria-label="Go to the start">
+      <span class="brand-plane">✈</span>
+      <span><strong>World Weather Explorers</strong><small>BIG ADVENTURES, BRIGHT EXPLORERS</small></span>
+    </button>
+    <div class="top-actions">
+      <button class="soft-btn" id="soundBtn" type="button" aria-pressed="true">♫ Sound on</button>
+      <button class="soft-btn passport-btn" id="passportBtn" type="button">▣ My passport</button>
+    </div>
+  </header>
+
+  <main>
+    <nav class="stepper" aria-label="Your trip">
+      <span class="step" data-step="1"><b>1</b> Pick a city</span>
+      <span class="step" data-step="2"><b>2</b> Check the weather</span>
+      <span class="step" data-step="3"><b>3</b> Pack your bag</span>
+      <span class="step" data-step="4"><b>4</b> Let's fly!</span>
+    </nav>
+
+    <section class="screen active" id="explorerScreen" aria-labelledby="explorerTitle">
+      <div class="eyebrow">WELCOME, LITTLE TRAVELER!</div>
+      <h1 id="explorerTitle">Choose your explorer!</h1>
+      <p class="lead">Pick an explorer for your adventure. You can change your explorer later.</p>
+      <div class="explorer-grid" id="explorerGrid" aria-label="Choose an explorer"></div>
+      <div class="center-actions">
+        <button class="primary-btn" id="startAdventureBtn" type="button" disabled>Start my adventure!</button>
+      </div>
+    </section>
+
+    <section class="screen" id="mapScreen" aria-labelledby="mapTitle">
+      <div class="map-heading">
+        <div>
+          <div class="eyebrow">YOUR NEXT LITTLE ADVENTURE</div>
+          <h1 id="mapTitle">Where do you want to go?</h1>
+          <p class="lead" id="choiceSentence">Choose a city on the map.</p>
+        </div>
+        <button class="surprise-btn" id="surpriseBtn" type="button">✦ Surprise me!</button>
+      </div>
+      <label class="city-select-row" for="citySelect">
+        <span>Choose a city</span>
+        <select id="citySelect" aria-label="Choose a city">
+          <option value="">Select a city…</option>
+        </select>
+      </label>
+      <div class="map-layout">
+        <div class="map-shell" id="mapShell">
+          <img src="assets/world-map.png" alt="A colorful illustrated world map" class="world-map">
+          <div class="city-markers" id="cityMarkers"></div>
+          <div class="plane-token" id="planeToken" aria-hidden="true"><img src="assets/airplane.png" alt=""><span class="map-plane-avatar"></span></div>
+        </div>
+        <article class="destination-card" id="destinationCard">
+          <div class="destination-preview" id="destinationPreview"></div>
+          <div class="destination-details">
+            <div class="eyebrow">YOUR DESTINATION</div>
+            <div class="destination-flag" id="destinationFlag"></div>
+            <h2 id="destinationName">Pick a city</h2>
+            <p id="destinationPhrase">Choose a flag on the map or use the city menu.</p>
+            <p class="destination-meta" id="destinationMeta"></p>
+          </div>
+          <button class="primary-btn" id="weatherBtn" type="button" disabled>Check the weather</button>
+        </article>
+      </div>
+      <section class="next-stop-section" aria-labelledby="nextStopTitle">
+        <div class="eyebrow">SO MANY PLACES TO SAY HELLO</div>
+        <h2 id="nextStopTitle">Find your next stop!</h2>
+        <div class="city-carousel" id="cityCarousel"></div>
+      </section>
+    </section>
+
+    <section class="screen" id="weatherScreen" aria-labelledby="weatherTitle">
+      <button class="back-btn" data-back="mapScreen" type="button">← Back to the map</button>
+      <div class="eyebrow">TODAY'S REAL FORECAST</div>
+      <h1 id="weatherTitle">How's the weather?</h1>
+      <div class="weather-card">
+        <div class="weather-visual">
+          <span class="weather-emoji" id="weatherEmoji">⛅</span>
+          <span class="temperature" id="temperature">--°C</span>
+        </div>
+        <div class="weather-copy">
+          <div class="city-chip" id="weatherCityChip"></div>
+          <p class="practice-line" id="weatherSentence">Loading today's weather…</p>
+          <p class="weather-details" id="weatherDetails"></p>
+          <button class="listen-btn" id="listenWeatherBtn" type="button">♫ Listen and say</button>
+        </div>
+      </div>
+      <div class="weather-source">Daily forecast from <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Open-Meteo</a>. If the service is unavailable, the activity pauses instead of showing made-up weather.</div>
+      <div class="center-actions">
+        <button class="primary-btn" id="packBtn" type="button" disabled>Pack your bag!</button>
+      </div>
+    </section>
+
+    <section class="screen" id="packScreen" aria-labelledby="packTitle">
+      <button class="back-btn" data-back="weatherScreen" type="button">← Back to the weather</button>
+      <div class="eyebrow">PACK YOUR BAG</div>
+      <h1 id="packTitle">What goes in your bag?</h1>
+      <div class="pack-weather-summary">
+        <div class="pack-city-line"><span id="packCityFlag"></span><strong id="packCityName"></strong><span id="packWeatherEmoji"></span><b id="packAverageTemp"></b><span id="packWeatherWords"></span></div>
+        <div class="forecast-label">Daily weather forecast · 每日天氣預報</div>
+        <div class="forecast-grid">
+          <span id="packCityDate"></span><span id="packTemperatureRange"></span><span id="packRainChance"></span><span id="packWindSpeed"></span>
+        </div>
+        <p>Pack for the daily average temperature.</p>
+        <small id="packUpdatedTime"></small>
+      </div>
+      <p class="lead" id="packPrompt"></p>
+      <div class="packing-advice" id="packingAdvice"></div>
+      <div class="outerwear-guide"><span><b>jacket</b> = a light layer for cool, windy, or foggy days</span><span><b>coat</b> = a warm layer for cold or snowy days</span></div>
+      <div class="pack-layout">
+        <div class="clothes-panel">
+          <h2>What should you bring?</h2>
+          <div class="item-grid" id="itemGrid"></div>
+        </div>
+        <div class="suitcase-panel">
+          <div class="suitcase-lid">MY TRAVEL BAG</div>
+          <div class="suitcase" id="suitcase">
+            <p id="emptyBag">Tap an item to pack it.</p>
+            <div class="packed-items" id="packedItems"></div>
+          </div>
+          <p class="bag-feedback" id="bagFeedback" aria-live="polite"></p>
+          <button class="primary-btn" id="checkBagBtn" type="button">Check my bag</button>
+        </div>
+      </div>
+      <div class="pack-listen-bar">
+        <span class="listen-orb">♫</span>
+        <div><div class="eyebrow">LISTEN &amp; SAY IT</div><p id="packListenSentence"></p></div>
+        <button class="listen-btn" id="listenPackBtn" type="button">↻ Listen again</button>
+      </div>
+    </section>
+
+    <section class="screen" id="flightScreen" aria-labelledby="flightTitle">
+      <div class="eyebrow">A NEW PLACE, A NEW ADVENTURE</div>
+      <h1 id="flightTitle">Welcome!</h1>
+      <article class="arrival-card" id="arrivalCard" hidden>
+        <div class="city-postcard" id="cityPostcard"><div class="postcard-plane" id="postcardPlane"><img src="assets/airplane.png" alt=""><span class="postcard-avatar"></span></div><span class="sparkle sparkle-one">✦</span><span class="sparkle sparkle-two">★</span></div>
+        <div class="visited-stamp"><div class="arrival-flag" id="arrivalFlag"></div><strong id="stampCity"></strong><span>VISITED ✧</span></div>
+        <div class="landmark-pop" id="landmarkIcon"></div>
+        <div class="eyebrow">A NEW PLACE, A NEW ADVENTURE</div>
+        <h2 id="arrivalTitle"></h2>
+        <p class="arrival-landmark" id="arrivalLandmark"></p>
+        <p id="landmarkFact"></p>
+        <p class="packing-praise" id="packingPraise"></p>
+        <div class="arrival-actions">
+          <button class="listen-btn" id="listenArrivalBtn" type="button">♫ Listen and say</button>
+          <button class="primary-btn" id="nextTripBtn" type="button">Next adventure</button>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <dialog id="passportDialog" class="passport-dialog">
+    <button class="dialog-close" id="closePassportBtn" type="button" aria-label="Close passport">×</button>
+    <div class="passport-cover">
+      <span class="passport-globe">◎</span>
+      <div><div class="eyebrow">MY LITTLE WORLD</div><h2>My travel passport</h2></div>
+      <div class="passport-explorer" id="passportExplorer"></div>
+    </div>
+    <p class="passport-progress" id="passportProgress"></p>
+    <div class="passport-grid" id="passportGrid"></div>
+    <button class="soft-btn" id="changeExplorerBtn" type="button">Change my explorer</button>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
