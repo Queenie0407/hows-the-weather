@@ -46,6 +46,7 @@ const MARKER_OFFSETS = {
 
 const state = {
   avatar: Number(localStorage.getItem('weatherExplorerAvatar') ?? -1),
+  englishName: localStorage.getItem('weatherExplorerName') || '',
   sound: localStorage.getItem('weatherExplorerSound') !== 'off',
   city: null,
   weather: null,
@@ -107,6 +108,8 @@ function renderExplorers() {
     $('explorerGrid').appendChild(btn);
   }
   chooseAvatar(state.avatar, false);
+  $('englishNameInput').value = state.englishName;
+  updateIdentityUI();
 }
 
 function chooseAvatar(index, speakChoice = true) {
@@ -114,13 +117,41 @@ function chooseAvatar(index, speakChoice = true) {
   state.avatar = index;
   localStorage.setItem('weatherExplorerAvatar', String(index));
   document.querySelectorAll('.explorer-card').forEach((card, i) => card.classList.toggle('selected', i === index));
-  $('startAdventureBtn').disabled = false;
+  updateIdentityUI();
   applyAvatar($('passportExplorer'));
   if (speakChoice) speak('This is your explorer!');
 }
 
+function cleanEnglishName(value) {
+  return value.trim().replace(/\s+/g, ' ');
+}
+
+function hasUsableName(value) {
+  return cleanEnglishName(value).length > 0 && /\p{L}/u.test(value);
+}
+
+function identityComplete() {
+  return state.avatar >= 0 && hasUsableName(state.englishName);
+}
+
+function updateIdentityUI() {
+  const inputName = cleanEnglishName($('englishNameInput')?.value || '');
+  const avatarChosen = state.avatar >= 0;
+  const nameReady = hasUsableName(inputName);
+  $('startAdventureBtn').disabled = !(avatarChosen && nameReady);
+  if (avatarChosen && nameReady) $('namePreview').textContent = `Hi! I’m ${inputName}.`;
+  else if (!avatarChosen && nameReady) $('namePreview').textContent = `Hi! I’m ${inputName}. Now choose your explorer!`;
+  else if (avatarChosen) $('namePreview').textContent = 'Great choice! Now type your English name.';
+  else $('namePreview').textContent = 'Choose an explorer and type your English name.';
+}
+
 function applyAvatar(el) {
-  if (!el || state.avatar < 0) return;
+  if (!el) return;
+  el.classList.toggle('empty', state.avatar < 0);
+  if (state.avatar < 0) {
+    el.style.backgroundPosition = '';
+    return;
+  }
   el.style.backgroundPosition = spritePosition(state.avatar);
 }
 
@@ -415,6 +446,7 @@ function showArrival() {
 
 function renderPassport() {
   applyAvatar($('passportExplorer'));
+  $('passportName').textContent = state.englishName ? `Explorer: ${state.englishName}` : 'Explorer: Add your English name';
   $('passportProgress').textContent = `${state.visited.size} of ${CITIES.length} cities visited. Where will you go next?`;
   $('passportGrid').innerHTML = CITIES.map(city => {
     const visited = state.visited.has(city.id);
@@ -518,7 +550,19 @@ renderCityCarousel();
 renderPassport();
 updateSoundButton();
 
-$('startAdventureBtn').addEventListener('click', () => { showScreen('mapScreen', 1); speak('Where do you want to go?'); });
+$('englishNameInput').addEventListener('input', updateIdentityUI);
+$('explorerIdentityForm').addEventListener('submit', event => {
+  event.preventDefault();
+  const englishName = cleanEnglishName($('englishNameInput').value);
+  if (state.avatar < 0 || !hasUsableName(englishName)) return;
+  state.englishName = englishName;
+  $('englishNameInput').value = englishName;
+  localStorage.setItem('weatherExplorerName', englishName);
+  renderPassport();
+  showToast(`Welcome, ${englishName}!`);
+  showScreen('mapScreen', 1);
+  speak('Where do you want to go?');
+});
 $('citySelect').addEventListener('change', event => {
   const city = CITIES.find(item => item.id === event.target.value);
   if (city) chooseCity(city);
@@ -535,7 +579,7 @@ $('soundBtn').addEventListener('click', () => { state.sound = !state.sound; loca
 $('passportBtn').addEventListener('click', () => { renderPassport(); $('passportDialog').showModal(); });
 $('closePassportBtn').addEventListener('click', () => $('passportDialog').close());
 $('changeExplorerBtn').addEventListener('click', () => { $('passportDialog').close(); showScreen('explorerScreen', 0); });
-$('homeBtn').addEventListener('click', () => showScreen(state.avatar >= 0 ? 'mapScreen' : 'explorerScreen', state.avatar >= 0 ? 1 : 0));
+$('homeBtn').addEventListener('click', () => showScreen(identityComplete() ? 'mapScreen' : 'explorerScreen', identityComplete() ? 1 : 0));
 document.querySelectorAll('[data-back]').forEach(btn => btn.addEventListener('click', () => showScreen(btn.dataset.back, btn.dataset.back === 'mapScreen' ? 1 : 2)));
 
-if (state.avatar >= 0) showScreen('mapScreen', 1);
+if (identityComplete()) showScreen('mapScreen', 1);
