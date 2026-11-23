@@ -138,11 +138,14 @@ function updateIdentityUI() {
   const inputName = cleanEnglishName($('englishNameInput')?.value || '');
   const avatarChosen = state.avatar >= 0;
   const nameReady = hasUsableName(inputName);
+  document.querySelectorAll('.explorer-card').forEach(card => { card.disabled = !nameReady; });
+  $('explorerGrid').classList.toggle('locked', !nameReady);
+  $('explorerGrid').setAttribute('aria-disabled', String(!nameReady));
   $('startAdventureBtn').disabled = !(avatarChosen && nameReady);
-  if (avatarChosen && nameReady) $('namePreview').textContent = `Hi! I’m ${inputName}.`;
-  else if (!avatarChosen && nameReady) $('namePreview').textContent = `Hi! I’m ${inputName}. Now choose your explorer!`;
-  else if (avatarChosen) $('namePreview').textContent = 'Great choice! Now type your English name.';
-  else $('namePreview').textContent = 'Choose an explorer and type your English name.';
+  $('namePreview').textContent = nameReady ? `Hi! I’m ${inputName}.` : 'Type your English name to continue.';
+  $('explorerInstruction').textContent = nameReady
+    ? `Nice to meet you, ${inputName}! Pick the picture you want on your passport.`
+    : 'Enter your English name first to unlock the explorers.';
 }
 
 function applyAvatar(el) {
@@ -579,7 +582,7 @@ $('soundBtn').addEventListener('click', () => { state.sound = !state.sound; loca
 $('passportBtn').addEventListener('click', () => { renderPassport(); $('passportDialog').showModal(); });
 $('closePassportBtn').addEventListener('click', () => $('passportDialog').close());
 $('changeExplorerBtn').addEventListener('click', () => { $('passportDialog').close(); showScreen('explorerScreen', 0); });
-$('homeBtn').addEventListener('click', () => showScreen(identityComplete() ? 'mapScreen' : 'explorerScreen', identityComplete() ? 1 : 0));
+$('homeBtn').addEventListener('click', () => showScreen('explorerScreen', 0));
 document.querySelectorAll('[data-back]').forEach(btn => btn.addEventListener('click', () => showScreen(btn.dataset.back, btn.dataset.back === 'mapScreen' ? 1 : 2)));
 
-if (identityComplete()) showScreen('mapScreen', 1);
+showScreen('explorerScreen', 0);

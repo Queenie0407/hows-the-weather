@@ -30,14 +30,20 @@
 
     <section class="screen active" id="explorerScreen" aria-labelledby="explorerTitle">
       <div class="eyebrow">WELCOME, LITTLE TRAVELER!</div>
-      <h1 id="explorerTitle">Choose your explorer!</h1>
-      <p class="lead">Pick a character, then add your English name. You can change both later.</p>
-      <div class="explorer-grid" id="explorerGrid" aria-label="Choose an explorer"></div>
+      <h1 id="explorerTitle">Get ready to explore!</h1>
+      <p class="lead">First, enter your English name. Then choose the explorer picture for your passport.</p>
       <form class="explorer-identity" id="explorerIdentityForm">
-        <label for="englishNameInput">What’s your English name?</label>
-        <input id="englishNameInput" name="englishName" type="text" maxlength="24" autocomplete="nickname" placeholder="Type your English name" aria-describedby="nameHelp namePreview">
-        <small id="nameHelp">Use the English name you want in your passport.</small>
-        <p class="name-preview" id="namePreview" aria-live="polite">Choose an explorer and type your English name.</p>
+        <div class="name-entry-card">
+          <label for="englishNameInput">What’s your English name?</label>
+          <input id="englishNameInput" name="englishName" type="text" maxlength="24" autocomplete="nickname" placeholder="Type your English name" aria-describedby="nameHelp namePreview">
+          <small id="nameHelp">Use the English name you want in your passport.</small>
+          <p class="name-preview" id="namePreview" aria-live="polite">Type your English name to continue.</p>
+        </div>
+        <div class="explorer-choice" id="explorerChoice">
+          <h2>Choose your explorer!</h2>
+          <p id="explorerInstruction">Enter your English name first to unlock the explorers.</p>
+          <div class="explorer-grid locked" id="explorerGrid" aria-label="Choose an explorer" aria-disabled="true"></div>
+        </div>
         <button class="primary-btn" id="startAdventureBtn" type="submit" disabled>Start my adventure!</button>
       </form>
     </section>
