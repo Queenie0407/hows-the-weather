@@ -154,6 +154,9 @@ p { line-height: 1.55; }
 .weather-emoji { font-size: clamp(5rem, 14vw, 9rem); filter: drop-shadow(0 10px 8px rgba(50,90,100,.12)); animation: bob 2.7s ease-in-out infinite; }
 @keyframes bob { 50% { transform: translateY(-8px) rotate(2deg); } }
 .temperature { font-size: clamp(2rem, 6vw, 4rem); font-weight: 900; }
+.temperature-guide { display: flex; flex-wrap: wrap; justify-content: center; gap: .55rem; margin: 1rem auto .75rem; }
+.temperature-guide span { padding: .5rem .8rem; border: 1px solid #d9e4d4; border-radius: 999px; background: #fff; color: var(--ink); font-size: .9rem; box-shadow: 0 4px 12px rgba(30,70,60,.05); }
+.temperature-guide b { color: var(--teal); }
 .city-chip { display: inline-flex; width: fit-content; padding: .45rem .8rem; border-radius: 999px; background: var(--yellow); font-weight: 900; }
 .practice-line { font-size: clamp(1.35rem, 4vw, 2.3rem); line-height: 1.35; font-weight: 900; }
 .weather-details, .weather-source { color: var(--muted); }

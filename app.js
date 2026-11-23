@@ -199,9 +199,9 @@ function weatherCondition(code, wind) {
 }
 
 function temperatureFeel(temp) {
-  if (temp >= 30) return 'hot';
+  if (temp > 30) return 'hot';
   if (temp >= 21) return 'warm';
-  if (temp >= 11) return 'cool';
+  if (temp >= 15) return 'cool';
   return 'cold';
 }
 
