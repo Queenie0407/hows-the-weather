@@ -44,14 +44,16 @@ const MARKER_OFFSETS = {
   lima: [-24, -8], santiago: [-18, 25], buenosaires: [28, 12]
 };
 
+['weatherExplorerAvatar', 'weatherExplorerName', 'weatherExplorerVisited'].forEach(key => localStorage.removeItem(key));
+
 const state = {
-  avatar: Number(localStorage.getItem('weatherExplorerAvatar') ?? -1),
-  englishName: localStorage.getItem('weatherExplorerName') || '',
+  avatar: -1,
+  englishName: '',
   sound: localStorage.getItem('weatherExplorerSound') !== 'off',
   city: null,
   weather: null,
   packed: new Set(),
-  visited: new Set(JSON.parse(localStorage.getItem('weatherExplorerVisited') || '[]'))
+  visited: new Set()
 };
 
 const $ = (id) => document.getElementById(id);
@@ -115,7 +117,6 @@ function renderExplorers() {
 function chooseAvatar(index, speakChoice = true) {
   if (index < 0 || index > 9) return;
   state.avatar = index;
-  localStorage.setItem('weatherExplorerAvatar', String(index));
   document.querySelectorAll('.explorer-card').forEach((card, i) => card.classList.toggle('selected', i === index));
   updateIdentityUI();
   applyAvatar($('passportExplorer'));
@@ -441,7 +442,6 @@ function showArrival() {
   $('arrivalCard').hidden = false;
   applyAvatar(document.querySelector('.postcard-avatar'));
   state.visited.add(city.id);
-  localStorage.setItem('weatherExplorerVisited', JSON.stringify([...state.visited]));
   renderPassport();
   speak(`${$('arrivalTitle').textContent} ${$('arrivalLandmark').textContent} ${city.fact}`);
   showToast(`${city.city} added to your passport!`);
@@ -560,7 +560,6 @@ $('explorerIdentityForm').addEventListener('submit', event => {
   if (state.avatar < 0 || !hasUsableName(englishName)) return;
   state.englishName = englishName;
   $('englishNameInput').value = englishName;
-  localStorage.setItem('weatherExplorerName', englishName);
   renderPassport();
   showToast(`Welcome, ${englishName}!`);
   showScreen('mapScreen', 1);
