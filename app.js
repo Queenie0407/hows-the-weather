@@ -401,25 +401,42 @@ function startFlight() {
   $('surpriseBtn').disabled = true;
   $('cityMarkers').style.pointerEvents = 'none';
   $('arrivalCard').hidden = true;
+  requestAnimationFrame(() => $('mapShell').scrollIntoView({ behavior: 'smooth', block: 'center' }));
+  setTimeout(animateFlightToSelectedCity, 550);
+}
+
+function animateFlightToSelectedCity() {
+  if (!state.city) return;
   const plane = $('planeToken');
-  const shellRect = $('mapShell').getBoundingClientRect();
+  const shell = $('mapShell');
+  const shellRect = shell.getBoundingClientRect();
   const targetMarker = document.querySelector(`.city-marker[data-city="${state.city.id}"]`);
   const markerRect = targetMarker.getBoundingClientRect();
-  const targetX = markerRect.left + markerRect.width / 2 - shellRect.left;
-  const targetY = markerRect.top + markerRect.height / 2 - shellRect.top;
+  const targetX = markerRect.left + markerRect.width / 2 - shellRect.left - shell.clientLeft;
+  const targetY = markerRect.top + markerRect.height / 2 - shellRect.top - shell.clientTop;
+  const shellWidth = shell.clientWidth;
+  const shellHeight = shell.clientHeight;
   plane.style.display = 'block';
-  plane.classList.toggle('westbound', targetX < shellRect.width / 2);
+  plane.classList.toggle('westbound', targetX < shellWidth / 2);
   applyAvatar(plane.querySelector('.map-plane-avatar'));
-  const flightDirection = targetX < shellRect.width / 2 ? -1 : 1;
+  const flightDirection = targetX < shellWidth / 2 ? -1 : 1;
+  const planeWidth = plane.offsetWidth;
+  const planeHeight = plane.offsetHeight;
+  const edgePadding = 14;
+  const noseOffset = Math.min(planeWidth * .34, 48);
+  const rawLandingX = targetX - flightDirection * noseOffset;
+  const rawLandingY = targetY + Math.min(planeHeight * .28, 18);
+  const landingX = Math.min(shellWidth - planeWidth / 2 - edgePadding, Math.max(planeWidth / 2 + edgePadding, rawLandingX));
+  const landingY = Math.min(shellHeight - planeHeight / 2 - edgePadding, Math.max(planeHeight / 2 + edgePadding, rawLandingY));
   plane.style.transition = 'none';
-  plane.style.left = `${shellRect.width / 2}px`;
-  plane.style.top = `${shellRect.height * .56}px`;
+  plane.style.left = `${shellWidth / 2}px`;
+  plane.style.top = `${shellHeight * .56}px`;
   plane.style.transform = `translate(-50%, -50%) scaleX(${flightDirection}) rotate(-8deg) scale(1.4)`;
   void plane.offsetWidth;
   plane.style.transition = 'left 3.8s cubic-bezier(.3,.75,.25,1), top 3.8s cubic-bezier(.3,.75,.25,1), transform 3.8s ease';
   requestAnimationFrame(() => requestAnimationFrame(() => {
-    plane.style.left = `${targetX}px`;
-    plane.style.top = `${targetY}px`;
+    plane.style.left = `${landingX}px`;
+    plane.style.top = `${landingY}px`;
     plane.style.transform = `translate(-50%, -50%) scaleX(${flightDirection}) rotate(-5deg) scale(1)`;
   }));
   speak(`Good job! Let's fly to ${state.city.city}.`);
