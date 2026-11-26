@@ -237,6 +237,14 @@ p { line-height: 1.55; }
 .landmark-pop { font-size: 7rem; animation: landmarkPop .8s .15s cubic-bezier(.2,1.4,.3,1) both; }
 @keyframes landmarkPop { from { transform: translateY(80px) scale(.3); opacity: 0; } }
 .arrival-landmark { font-size: 1.5rem; font-weight: 900; }
+.arrival-city-type { display: inline-flex; margin: .35rem auto .15rem; padding: .38rem .75rem; border-radius: 999px; color: var(--teal-dark); background: var(--mint); font-size: .9rem; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; }
+.landmark-facts { max-width: 650px; margin: 0 auto; }
+.landmark-facts p { margin: .35rem 0; font-size: 1.08rem; }
+.landmark-vocabulary { display: grid; gap: .55rem; justify-items: center; margin: 1rem auto; }
+.landmark-vocabulary > strong { color: var(--teal-dark); font-size: .92rem; text-transform: uppercase; letter-spacing: .08em; }
+.word-chips { display: flex; justify-content: center; gap: .5rem; flex-wrap: wrap; }
+.word-chips span { padding: .42rem .72rem; border: 2px solid rgba(15,118,110,.16); border-radius: 999px; background: white; font-weight: 800; }
+.landmark-question { width: fit-content; max-width: 100%; margin: 1rem auto; padding: .7rem 1rem; border-radius: 1rem; color: var(--teal-dark); background: #e8f6ff; font-weight: 900; }
 .arrival-actions { display: flex; justify-content: center; gap: .7rem; flex-wrap: wrap; }
 
 .passport-dialog { width: min(930px, calc(100% - 2rem)); max-height: 88vh; padding: 1.5rem; border: 0; border-radius: 2rem; color: var(--ink); background: #fff9e8; box-shadow: 0 30px 80px rgba(10,50,55,.3); }
