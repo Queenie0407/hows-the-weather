@@ -378,6 +378,7 @@ function openPack() {
   if (!state.weather) return;
   state.packed = new Set();
   const weather = state.weather;
+  $('packTitle').textContent = `Let's pack for ${state.city.city}!`;
   $('packPrompt').textContent = `Choose one complete outfit, suitable shoes, and the weather gear you need.${weather.feel === 'hot' ? ' A portable fan can help on a hot day.' : ''}`;
   $('packingAdvice').innerHTML = packingAdviceLines().map(([title, advice]) => `<div class="advice-card"><strong>${title}:</strong> ${advice}</div>`).join('');
   $('packCityFlag').innerHTML = flagMarkup(state.city);
