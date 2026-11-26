@@ -24,12 +24,15 @@ const CITIES = [
 const ITEMS = [
   {id:'tshirt', name:'T-shirt', icon:itemIcon('tshirt')}, {id:'sweater', name:'sweater', icon:itemIcon('sweater')},
   {id:'jacket', name:'jacket', icon:itemIcon('jacket')}, {id:'coat', name:'coat', icon:itemIcon('coat')},
-  {id:'shorts', name:'shorts', icon:itemIcon('shorts')}, {id:'pants', name:'pants', icon:itemIcon('pants')},
-  {id:'shoes', name:'shoes', icon:itemIcon('shoes')}, {id:'boots', name:'boots', icon:itemIcon('boots')},
+  {id:'dress', name:'dress', icon:itemIcon('dress')}, {id:'shorts', name:'shorts', icon:itemIcon('shorts')},
+  {id:'skirt', name:'skirt', icon:itemIcon('skirt')}, {id:'pants', name:'pants', icon:itemIcon('pants')},
+  {id:'shoes', name:'shoes', icon:itemIcon('shoes')}, {id:'sandals', name:'sandals', icon:itemIcon('sandals')},
+  {id:'boots', name:'boots', icon:itemIcon('boots')},
   {id:'hat', name:'hat', icon:itemIcon('hat')}, {id:'scarf', name:'scarf', icon:itemIcon('scarf')},
   {id:'gloves', name:'gloves', icon:itemIcon('gloves')}, {id:'umbrella', name:'umbrella', icon:itemIcon('umbrella')},
   {id:'sunglasses', name:'sunglasses', icon:itemIcon('sunglasses')}, {id:'raincoat', name:'raincoat', icon:itemIcon('raincoat')},
-  {id:'sunscreen', name:'sunscreen', icon:itemIcon('sunscreen')}, {id:'waterbottle', name:'water bottle', icon:itemIcon('waterbottle')}
+  {id:'sunscreen', name:'sunscreen', icon:itemIcon('sunscreen')}, {id:'waterbottle', name:'water bottle', icon:itemIcon('waterbottle')},
+  {id:'portablefan', name:'portable fan', icon:itemIcon('portablefan')}
 ];
 
 function itemIcon(id) {
@@ -290,42 +293,80 @@ async function loadWeather() {
   }
 }
 
-function packingGroups() {
+function packingRules() {
   const { condition, feel } = state.weather;
-  const groups = [];
-  if (condition === 'snowy' || condition === 'stormy') groups.push(['boots']);
-  else groups.push(['shoes', 'boots']);
-  if (feel === 'hot') groups.push(['tshirt'], ['shorts', 'pants'], ['waterbottle']);
-  if (feel === 'warm') groups.push(['tshirt'], ['shorts', 'pants']);
-  if (feel === 'cool') groups.push(['sweater', 'jacket'], ['pants']);
-  if (feel === 'cold') groups.push(['coat'], ['pants'], ['gloves', 'scarf']);
-  if (condition === 'rainy') groups.push(['umbrella', 'raincoat']);
-  if (condition === 'stormy') groups.push(['raincoat']);
-  if (condition === 'snowy') groups.push(['coat'], ['boots'], ['gloves'], ['scarf']);
-  if (condition === 'sunny') {
-    groups.push(['hat', 'sunglasses', 'sunscreen']);
-    if (feel === 'warm') groups.push(['waterbottle']);
+  const rules = [];
+  const secureBottom = condition === 'windy' || condition === 'stormy';
+
+  if (condition === 'snowy' || feel === 'cold') {
+    rules.push({
+      hint: 'Bring a coat and pants.',
+      alternatives: [['coat', 'pants']]
+    });
+  } else if (feel === 'cool') {
+    rules.push({
+      hint: 'Bring a sweater or jacket with pants.',
+      alternatives: [['sweater', 'pants'], ['jacket', 'pants']]
+    });
+  } else if (secureBottom) {
+    rules.push({
+      hint: 'Wear a T-shirt with pants for the wind.',
+      alternatives: [['tshirt', 'pants']]
+    });
+  } else {
+    rules.push({
+      hint: 'Choose a dress, or wear a T-shirt with shorts, a skirt, or pants.',
+      alternatives: [['dress'], ['tshirt', 'shorts'], ['tshirt', 'skirt'], ['tshirt', 'pants']]
+    });
   }
-  if (condition === 'windy') groups.push(feel === 'cold' ? ['coat'] : ['jacket']);
-  if (condition === 'foggy') groups.push(feel === 'cold' ? ['coat'] : ['jacket', 'sweater']);
-  return groups;
+
+  if (condition === 'snowy' || condition === 'stormy') {
+    rules.push({ hint: 'Bring boots.', alternatives: [['boots']] });
+  } else if (condition === 'rainy') {
+    rules.push({ hint: 'Bring shoes or boots. Sandals are not suitable for rain.', alternatives: [['shoes'], ['boots']] });
+  } else if (feel === 'hot' || feel === 'warm') {
+    rules.push({ hint: 'Bring shoes or sandals.', alternatives: [['shoes'], ['sandals']] });
+  } else {
+    rules.push({ hint: 'Bring shoes or boots.', alternatives: [['shoes'], ['boots']] });
+  }
+
+  if (feel === 'hot') rules.push({ hint: 'Bring a water bottle.', alternatives: [['waterbottle']] });
+  if (condition === 'rainy') rules.push({ hint: 'Bring an umbrella or a raincoat.', alternatives: [['umbrella'], ['raincoat']] });
+  if (condition === 'stormy') rules.push({ hint: 'Bring a raincoat.', alternatives: [['raincoat']] });
+  if (condition === 'snowy') {
+    rules.push({ hint: 'Bring gloves and a scarf.', alternatives: [['gloves', 'scarf']] });
+  }
+  if (condition === 'sunny') {
+    rules.push({ hint: 'Bring a hat, sunglasses, or sunscreen.', alternatives: [['hat'], ['sunglasses'], ['sunscreen']] });
+  }
+  if (condition === 'windy' && feel !== 'cold') {
+    rules.push({ hint: 'Bring a light jacket for the wind.', alternatives: [['jacket']] });
+  }
+  if (condition === 'foggy' && feel !== 'cold') {
+    rules.push({ hint: 'Bring a jacket or sweater for the foggy day.', alternatives: [['jacket'], ['sweater']] });
+  }
+  return rules;
+}
+
+function packingRuleIsSatisfied(rule) {
+  return rule.alternatives.some(outfit => outfit.every(id => state.packed.has(id)));
 }
 
 function packingAdviceLines() {
   const { condition, feel } = state.weather;
   const lines = [];
   const temperatureAdvice = {
-    hot: ['Temperature', 'It is hot. Bring a T-shirt, shorts, and a water bottle.'],
-    warm: ['Temperature', 'It is warm. Choose light clothes and comfortable shoes.'],
+    hot: ['Temperature', 'It is hot. Choose a light T-shirt outfit or a dress. Bring a water bottle. A portable fan can help.'],
+    warm: ['Temperature', 'It is warm. A T-shirt outfit or a dress will keep you comfortable.'],
     cool: ['Temperature', 'It is cool. Bring a sweater or a light jacket.'],
     cold: ['Temperature', 'It is cold. Bring a warm coat, pants, and a warm accessory.']
   };
   const weatherAdvice = {
-    sunny: ['Weather', 'It is sunny. Bring a hat, sunglasses, or sunscreen.'],
-    rainy: ['Weather', 'It is rainy. Bring an umbrella or a raincoat. Boots can keep your feet dry.'],
+    sunny: ['Weather', 'It is sunny. Bring a hat, sunglasses, or sunscreen. Shoes or sandals work on a dry day.'],
+    rainy: ['Weather', 'It is rainy. Bring an umbrella or a raincoat. Wear shoes or boots, not sandals.'],
     cloudy: ['Weather', 'It is cloudy. Check the temperature before you choose a top.'],
-    windy: ['Weather', feel === 'cold' ? 'It is windy and cold. Wear a warm coat.' : 'It is windy. Bring a light jacket.'],
-    stormy: ['Weather', 'It is stormy. Bring a raincoat and boots. Leave the umbrella at home.'],
+    windy: ['Weather', feel === 'cold' ? 'It is windy and cold. Wear a warm coat.' : 'It is windy. Wear pants and bring a light jacket.'],
+    stormy: ['Weather', 'It is stormy. Wear pants, a raincoat, and boots. Leave the umbrella at home.'],
     snowy: ['Weather', 'It is snowy. Bring boots, gloves, a scarf, and a coat.'],
     foggy: ['Weather', feel === 'cold' ? 'It is foggy and cold. Bring a warm coat.' : 'It is foggy. Bring a light jacket or sweater.']
   };
@@ -337,8 +378,7 @@ function openPack() {
   if (!state.weather) return;
   state.packed = new Set();
   const weather = state.weather;
-  const req = packingGroups().map(group => ITEMS.find(i => i.id === group[0]).name);
-  $('packPrompt').textContent = `You should bring ${req.slice(0,3).join(', ')}. Use both the weather and the temperature to pack.`;
+  $('packPrompt').textContent = `Choose one complete outfit, suitable shoes, and the weather gear you need.${weather.feel === 'hot' ? ' A portable fan can help on a hot day.' : ''}`;
   $('packingAdvice').innerHTML = packingAdviceLines().map(([title, advice]) => `<div class="advice-card"><strong>${title}:</strong> ${advice}</div>`).join('');
   $('packCityFlag').innerHTML = flagMarkup(state.city);
   $('packCityName').textContent = state.city.city;
@@ -379,11 +419,9 @@ function renderItems() {
 }
 
 function checkBag() {
-  const missingGroup = packingGroups().find(group => !group.some(id => state.packed.has(id)));
-  if (missingGroup) {
-    const choices = missingGroup.map(id => ITEMS.find(i => i.id === id).name);
-    const suggestion = choices.length === 1 ? choices[0] : `${choices.slice(0, -1).join(', ')} or ${choices.at(-1)}`;
-    $('bagFeedback').textContent = `It's ${state.weather.condition} and ${state.weather.feel}. Don't forget to bring ${suggestion}!`;
+  const missingRule = packingRules().find(rule => !packingRuleIsSatisfied(rule));
+  if (missingRule) {
+    $('bagFeedback').textContent = `It's ${state.weather.condition} and ${state.weather.feel}. ${missingRule.hint}`;
     speak($('bagFeedback').textContent);
     return;
   }
